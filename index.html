@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Médias - Paga e Libera</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: linear-gradient(135deg, #d0e6ff 0%, #f2f9ff 100%); padding: 20px; max-width: 500px; margin: 0 auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1877f2; text-align: center; margin-top: 0; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+        button { width: 100%; padding: 14px; background: #1877f2; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #166fe5; }
+        .paywall { background: #fff3cd; border: 2px dashed #ffc107; padding: 20px; border-radius: 8px; text-align: center; margin-top: 20px; display: none; }
+        .resultado { background: #d4edda; border: 2px solid #28a745; padding: 20px; border-radius: 8px; text-align: center; margin-top: 20px; display: none; }
+        .numero-emola { font-size: 24px; font-weight: bold; color: #dc3545; letter-spacing: 2px; }
+        .whatsapp-button { display: inline-block; width: 100%; text-align: center; padding: 12px; margin: 10px 0; background: #25d366; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; }
+        .whatsapp-button:hover { background: #1ebe57; }
+        small { color: #666; display: block; margin-top: 15px; text-align: center; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .tab-btn { flex: 1; padding: 12px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 14px; font-weight: bold; color: #666; transition: all 0.3s; }
+        .tab-btn.active { color: #1877f2; border-bottom-color: #1877f2; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .private-panel { display: none; margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; background: #fafafa; }
+        .private-panel h2 { margin: 0 0 10px; font-size: 16px; color: #333; }
+        .private-box { display: none; margin-top: 10px; }
+        .private-box.active { display: block; }
+        .private-panel small { display: block; margin-top: 10px; color: #555; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Calcula Tua Média</h1>
+        <p style="text-align:center; color:#555; margin-top: 0;">Bem-vindo! Calcúla tua média rápido.</p>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="mudarAba('periodo')">📊 Média do Período</button>
+            <button class="tab-btn" onclick="mudarAba('anual')">📈 Média Anual</button>
+        </div>
+
+        <div class="private-panel">
+            <h2>Painel Privado</h2>
+            <button onclick="mostrarLoginPrivado()">🔑 Acessar painel de geração</button>
+            <div id="loginPrivado" class="private-box">
+                <p>Digite sua senha de acesso:</p>
+                <input type="password" id="senhaPrivada" placeholder="Senha secreta">
+                <button onclick="entrarPainelPrivado()">Entrar</button>
+            </div>
+            <div id="painelGerador" class="private-box">
+                <p>Gerar código de pagamento único:</p>
+                <button onclick="gerarCodigo()">GERAR CÓDIGO</button>
+                <input type="text" id="codigoGerado" readonly placeholder="Seu código aparecerá aqui">
+                <small>Este painel é privado. Só você tem acesso.</small>
+            </div>
+        </div>
+
+        <!-- ABA 1: MÉDIA DO PERÍODO -->
+        <div id="periodo" class="tab-content active">
+            <p>Mete tuas notas de 0 a 20:</p>
+            <input type="number" id="nota1" placeholder="1 ACS" min="0" max="20" step="0.1">
+            <input type="number" id="nota2" placeholder="2 ACS" min="0" max="20" step="0.1">
+            <input type="number" id="nota3" placeholder="3 ACP" min="0" max="20" step="0.1">
+            <button onclick="calcular()">CALCULAR MÉDIA</button>
+        </div>
+
+        <!-- ABA 2: MÉDIA ANUAL -->
+        <div id="anual" class="tab-content">
+            <p>Mete as médias dos 3 períodos:</p>
+            <input type="number" id="periodo1" placeholder="Média do 1º Período" min="0" max="20" step="0.1">
+            <input type="number" id="periodo2" placeholder="Média do 2º Período" min="0" max="20" step="0.1">
+            <input type="number" id="periodo3" placeholder="Média do 3º Período" min="0" max="20" step="0.1">
+            <button onclick="calcularAnual()">CALCULAR MÉDIA ANUAL</button>
+        </div>
+
+        <!-- PAYWALL - APARECE DEPOIS DE CALCULAR -->
+        <div id="paywall" class="paywall">
+            <h3>🔒 Resultado Pronto!</h3>
+            <p>Paga <b>10 MT</b> via e-Mola pra desbloquear tua média</p>
+            <p>Envia para:</p>
+            <div class="numero-emola">87 699 0562</div>
+            <a class="whatsapp-button" href="https://wa.me/+258876990562?text=Ol%C3%A1%2C+gostaria+de+receber+o+c%C3%B3digo+de+pagamento" target="_blank">Receber código via WhatsApp</a>
+            <p style="font-size: 14px; margin-top: 10px; color: #333;"><b>Nome:</b> Cleiton Raimundo</p>
+            <p>Poi o código que recebeste no WhatsApp aqui 👇:</p>
+            <input type="text" id="codigoTransacao" placeholder="Ex: PP231003.1234.C12345">
+            <button onclick="verificarPagamento()">JÁ PAGUEI - LIBERAR</button>
+        </div>
+
+        <!-- RESULTADO - SÓ APARECE SE PAGAR -->
+        <div id="resultado" class="resultado">
+            <h3>✅ Tua Média Final é:</h3>
+            <h1 id="valorMedia">0.0</h1>
+            <p id="situacao"></p>
+        </div>
+
+        <small>Site independente. Não ligado ao Ministério da Educação.</small>
+    </div>
+
+    <script>
+        let mediaCalculada = 0;
+
+        function mudarAba(abaAtiva) {
+            // Esconde todas as abas
+            document.getElementById('periodo').classList.remove('active');
+            document.getElementById('anual').classList.remove('active');
+            
+            // Remove classe active dos botões
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Mostra a aba selecionada
+            document.getElementById(abaAtiva).classList.add('active');
+            
+            // Marca o botão como ativo
+            event.target.classList.add('active');
+            
+            // Reseta os paywalls
+            document.getElementById('paywall').style.display = 'none';
+            document.getElementById('resultado').style.display = 'none';
+        }
+
+        function calcular() {
+            // 1. Pega as notas
+            let n1 = parseFloat(document.getElementById('nota1').value) || 0;
+            let n2 = parseFloat(document.getElementById('nota2').value) || 0;
+            let n3 = parseFloat(document.getElementById('nota3').value) || 0;
+
+            // Validação básica
+            if(n1 + n2 + n3 == 0) {
+                alert('Mete pelo menos uma nota, chefe!');
+                return;
+            }
+
+            // 2. Calcula média
+            mediaCalculada = (n1 + n2 + n3) / 3;
+            mediaCalculada = mediaCalculada.toFixed(1);
+
+            // 3. Mostra paywall
+            document.getElementById('paywall').style.display = 'block';
+            document.getElementById('resultado').style.display = 'none';
+        }
+
+        function calcularAnual() {
+            // 1. Pega as médias dos períodos
+            let p1 = parseFloat(document.getElementById('periodo1').value) || 0;
+            let p2 = parseFloat(document.getElementById('periodo2').value) || 0;
+            let p3 = parseFloat(document.getElementById('periodo3').value) || 0;
+
+            // Validação básica
+            if(p1 + p2 + p3 == 0) {
+                alert('Mete pelo menos uma média, chefe!');
+                return;
+            }
+
+            // 2. Calcula média anual
+            mediaCalculada = (p1 + p2 + p3) / 3;
+            mediaCalculada = mediaCalculada.toFixed(1);
+
+            // 3. Mostra paywall
+            document.getElementById('paywall').style.display = 'block';
+            document.getElementById('resultado').style.display = 'none';
+        }
+
+        function verificarPagamento() {
+            let codigo = document.getElementById('codigoTransacao').value.trim();
+            
+            // MODO TESTE: aceita qualquer código com mais de 5 letras
+            // NA VIDA REAL: aqui tu chama teu backend pra validar na API da e-Mola
+            if(codigo.length > 5) {
+                // Pagamento "aprovado" - mostra resultado
+                document.getElementById('paywall').style.display = 'none';
+                document.getElementById('valorMedia').innerText = mediaCalculada;
+                
+                let situacao = mediaCalculada >= 10 ? 'Aprovado 🎉' : 'Reprovado 😢 - Estuda mais!';
+                document.getElementById('situacao').innerText = situacao;
+                document.getElementById('resultado').style.display = 'block';
+            } else {
+                alert('Código inválido. Paga primeiro no e-Mola e mete o código que vem na SMS.');
+            }
+        }
+
+        function mostrarLoginPrivado() {
+            document.getElementById('loginPrivado').classList.add('active');
+            document.getElementById('painelGerador').classList.remove('active');
+        }
+
+        function entrarPainelPrivado() {
+            const senha = document.getElementById('senhaPrivada').value.trim();
+            const senhaCerta = 'CleitonRaimundo';
+            if (senha === senhaCerta) {
+                document.getElementById('loginPrivado').classList.remove('active');
+                document.getElementById('painelGerador').classList.add('active');
+                document.getElementById('senhaPrivada').value = '';
+            } else {
+                alert('Senha incorreta. Somente você tem acesso.');
+            }
+        }
+
+        function gerarCodigo() {
+            const codigo = 'PG-' + Date.now().toString().slice(-8) + '-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('codigoGerado').value = codigo;
+        }
+    </script>
+</body>
+</html>
