@@ -103,6 +103,7 @@
 
     <script>
         let mediaCalculada = 0;
+        let codigosUsados = JSON.parse(localStorage.getItem('codigosUsados') || '[]');
 
         function mudarAba(abaAtiva) {
             // Esconde todas as abas
@@ -169,6 +170,12 @@
         function verificarPagamento() {
             let codigo = document.getElementById('codigoTransacao').value.trim();
             
+            // Verifica se o código já foi usado
+            if (codigosUsados.includes(codigo)) {
+                alert('Este código já foi usado. Gere um novo código.');
+                return;
+            }
+            
             // MODO TESTE: aceita qualquer código com mais de 5 letras
             // NA VIDA REAL: aqui tu chama teu backend pra validar na API da e-Mola
             if(codigo.length > 5) {
@@ -179,6 +186,10 @@
                 let situacao = mediaCalculada >= 10 ? 'Aprovado 🎉' : 'Reprovado 😢 - Estuda mais!';
                 document.getElementById('situacao').innerText = situacao;
                 document.getElementById('resultado').style.display = 'block';
+                
+                // Marca o código como usado
+                codigosUsados.push(codigo);
+                localStorage.setItem('codigosUsados', JSON.stringify(codigosUsados));
             } else {
                 alert('Código inválido. Paga primeiro no e-Mola e mete o código que vem na SMS.');
             }
