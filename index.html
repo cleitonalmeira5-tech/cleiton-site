@@ -23,7 +23,7 @@
         .tab-btn.active { color: #1877f2; border-bottom-color: #1877f2; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .private-panel { display: none; margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; background: #fafafa; }
+        .private-panel { display: block; margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; background: #fafafa; }
         .private-panel h2 { margin: 0 0 10px; font-size: 16px; color: #333; }
         .private-box { display: none; margin-top: 10px; }
         .private-box.active { display: block; }
@@ -38,21 +38,24 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="mudarAba('periodo')">📊 Média do Período</button>
             <button class="tab-btn" onclick="mudarAba('anual')">📈 Média Anual</button>
+            <button class="tab-btn" onclick="mudarAba('privado')">🔒 Painel Privado</button>
         </div>
 
-        <div class="private-panel">
-            <h2>Painel Privado</h2>
-            <button onclick="mostrarLoginPrivado()">🔑 Acessar painel de geração</button>
-            <div id="loginPrivado" class="private-box">
-                <p>Digite sua senha de acesso:</p>
-                <input type="password" id="senhaPrivada" placeholder="Senha secreta">
-                <button onclick="entrarPainelPrivado()">Entrar</button>
-            </div>
-            <div id="painelGerador" class="private-box">
-                <p>Gerar código de pagamento único:</p>
-                <button onclick="gerarCodigo()">GERAR CÓDIGO</button>
-                <input type="text" id="codigoGerado" readonly placeholder="Seu código aparecerá aqui">
-                <small>Este painel é privado. Só você tem acesso.</small>
+        <div id="privado" class="tab-content">
+            <div class="private-panel">
+                <h2>Painel Privado</h2>
+                <button onclick="mostrarLoginPrivado()">🔑 Acessar painel de geração</button>
+                <div id="loginPrivado" class="private-box">
+                    <p>Digite sua senha de acesso:</p>
+                    <input type="password" id="senhaPrivada" placeholder="Senha secreta">
+                    <button onclick="entrarPainelPrivado()">Entrar</button>
+                </div>
+                <div id="painelGerador" class="private-box">
+                    <p>Gerar código de pagamento único:</p>
+                    <button onclick="gerarCodigo()">GERAR CÓDIGO</button>
+                    <input type="text" id="codigoGerado" readonly placeholder="Seu código aparecerá aqui">
+                    <small>Este painel é privado. Só você tem acesso.</small>
+                </div>
             </div>
         </div>
 
@@ -95,6 +98,7 @@
         </div>
 
         <small>Site independente. Não ligado ao Ministério da Educação.</small>
+        <small style="margin-top: 4px;">almeira serviços</small>
     </div>
 
     <script>
@@ -104,6 +108,7 @@
             // Esconde todas as abas
             document.getElementById('periodo').classList.remove('active');
             document.getElementById('anual').classList.remove('active');
+            document.getElementById('privado').classList.remove('active');
             
             // Remove classe active dos botões
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
