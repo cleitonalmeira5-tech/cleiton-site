@@ -103,6 +103,7 @@
 
     <script>
         let mediaCalculada = 0;
+        let codigosValidos = JSON.parse(localStorage.getItem('codigosValidos') || '[]');
         let codigosUsados = JSON.parse(localStorage.getItem('codigosUsados') || '[]');
 
         function mudarAba(abaAtiva) {
@@ -170,29 +171,29 @@
         function verificarPagamento() {
             let codigo = document.getElementById('codigoTransacao').value.trim();
             
+            // Verifica se o código é válido (foi gerado pelo painel privado)
+            if (!codigosValidos.includes(codigo)) {
+                alert('Código inválido. Só códigos gerados no painel privado são aceitos.');
+                return;
+            }
+            
             // Verifica se o código já foi usado
             if (codigosUsados.includes(codigo)) {
                 alert('Este código já foi usado. Gere um novo código.');
                 return;
             }
             
-            // MODO TESTE: aceita qualquer código com mais de 5 letras
-            // NA VIDA REAL: aqui tu chama teu backend pra validar na API da e-Mola
-            if(codigo.length > 5) {
-                // Pagamento "aprovado" - mostra resultado
-                document.getElementById('paywall').style.display = 'none';
-                document.getElementById('valorMedia').innerText = mediaCalculada;
-                
-                let situacao = mediaCalculada >= 10 ? 'Aprovado 🎉' : 'Reprovado 😢 - Estuda mais!';
-                document.getElementById('situacao').innerText = situacao;
-                document.getElementById('resultado').style.display = 'block';
-                
-                // Marca o código como usado
-                codigosUsados.push(codigo);
-                localStorage.setItem('codigosUsados', JSON.stringify(codigosUsados));
-            } else {
-                alert('Código inválido. Paga primeiro no e-Mola e mete o código que vem na SMS.');
-            }
+            // Pagamento "aprovado" - mostra resultado
+            document.getElementById('paywall').style.display = 'none';
+            document.getElementById('valorMedia').innerText = mediaCalculada;
+            
+            let situacao = mediaCalculada >= 10 ? 'Aprovado 🎉' : 'Reprovado 😢 - Estuda mais!';
+            document.getElementById('situacao').innerText = situacao;
+            document.getElementById('resultado').style.display = 'block';
+            
+            // Marca o código como usado
+            codigosUsados.push(codigo);
+            localStorage.setItem('codigosUsados', JSON.stringify(codigosUsados));
         }
 
         function mostrarLoginPrivado() {
@@ -215,6 +216,12 @@
         function gerarCodigo() {
             const codigo = 'PG-' + Date.now().toString().slice(-8) + '-' + Math.floor(1000 + Math.random() * 9000);
             document.getElementById('codigoGerado').value = codigo;
+            
+            // Adiciona o código à lista de válidos
+            if (!codigosValidos.includes(codigo)) {
+                codigosValidos.push(codigo);
+                localStorage.setItem('codigosValidos', JSON.stringify(codigosValidos));
+            }
         }
     </script>
 </body>
