@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="description" content="Calculadora de Médias Moçambique - Sistema de Pagamento via e-Mola e USSD">
+    <title>SmartMédia MZ | Calcule sua Média</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Temas */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        body.light {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .container {
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .card {
+            border-radius: 28px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.5s ease;
+            transition: all 0.3s ease;
+        }
+
+        body.light .card {
+            background: white;
+        }
+
+        body.dark .card {
+            background: #1e1e2f;
+            color: #e0e0e0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header com Dark Mode Toggle */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-align: center;
+            font-size: 1.6rem;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .dark-mode-toggle {
+            background: #f0f2f5;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            transition: all 0.3s;
+        }
+
+        body.dark .dark-mode-toggle {
+            background: #2d2d44;
+            color: #ffd700;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        body.dark .subtitle {
+            border-bottom-color: #333;
+            color: #aaa;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #f0f2f5;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-top: 8px;
+        }
+
+        body.dark .badge {
+            background: #2d2d44;
+            color: #ccc;
+        }
+
+        /* Language Selector */
+        .lang-selector {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .lang-btn {
+            background: #f0f2f5;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 0;
+            width: auto;
+        }
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        body.dark .lang-btn {
+            background: #2d2d44;
+            color: #ccc;
+        }
+        body.dark .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            background: #f0f2f5;
+            border-radius: 50px;
+            padding: 5px;
+        }
+        body.dark .tabs {
+            background: #2d2d44;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #666;
+        }
+        body.dark .tab-btn {
+            color: #aaa;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeSlide 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Inputs */
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        body.light .input-group label { color: #555; }
+        body.dark .input-group label { color: #bbb; }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 14px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+        body.dark input {
+            background: #2d2d44;
+            border-color: #444;
+            color: white;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+
+        /* Doação */
+        .donation-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            text-align: center;
+        }
+        body.dark .donation-section {
+            background: #2d2d44;
+        }
+        .donation-btn {
+            background: linear-gradient(135deg, #ff9800, #ff5722);
+            margin: 0;
+        }
+        .donation-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .ussd-btn {
+            background: linear-gradient(135deg, #2196f3, #0b5e8a);
+            margin: 0;
+            font-size: 14px;
+        }
+        .emola-btn {
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Paywall */
+        .paywall {
+            border: 2px solid #ff9800;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            animation: shake 0.5s ease;
+        }
+        body.light .paywall { background: linear-gradient(135deg, #fff5e6, #ffe0b3); }
+        body.dark .paywall { background: linear-gradient(135deg, #2d2d44, #1e1e2f); border-color: #ff9800; }
+
+        .numero-emola {
+            font-size: 28px;
+            font-weight: bold;
+            color: #dc3545;
+            letter-spacing: 3px;
+            background: white;
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        body.dark .numero-emola { background: #1a1a2e; color: #ff6b6b; }
+
+        .ussd-code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2196f3;
+            letter-spacing: 2px;
+            background: white;
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        body.dark .ussd-code { background: #1a1a2e; }
+
+        /* Resultado */
+        .resultado {
+            border: 2px solid #28a745;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            animation: pulse 0.5s ease;
+        }
+        body.light .resultado { background: linear-gradient(135deg, #d4edda, #c3e6cb); }
+        body.dark .resultado { background: linear-gradient(135deg, #1a3a2a, #0d2a1a); }
+
+        .media-grande {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin: 10px 0;
+        }
+
+        .aprovado { color: #28a745; font-weight: bold; font-size: 18px; }
+        .reprovado { color: #dc3545; font-weight: bold; font-size: 18px; }
+        body.dark .aprovado { color: #5cb85c; }
+        body.dark .reprovado { color: #ff6b6b; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            padding: 25px;
+            max-width: 350px;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+        body.dark .modal-content {
+            background: #1e1e2f;
+            color: white;
+        }
+        .modal-icon { font-size: 50px; margin-bottom: 15px; }
+
+        /* Admin Panel (OCULTO) */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 28px;
+            padding: 25px;
+            z-index: 1001;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        body.dark .admin-panel {
+            background: #1e1e2f;
+            color: white;
+        }
+        .admin-panel.show { display: block; }
+        .admin-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+        .admin-overlay.show { display: block; }
+        .codigo-gerado {
+            font-family: monospace;
+            font-size: 18px;
+            font-weight: bold;
+            background: #e9ecef;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        body.dark .codigo-gerado { background: #2d2d44; }
+
+        .info {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        body.dark .info { border-top-color: #333; color: #888; }
+
+        @media (max-width: 500px) {
+            .card { padding: 20px; }
+            .media-grande { font-size: 36px; }
+            .numero-emola, .ussd-code { font-size: 20px; }
+        }
+    </style>
+</head>
+<body class="light">
+<div class="container">
+    <div class="card">
+        <div class="header-row">
+            <h1 id="titulo-principal">📊 SmartMédia MZ</h1>
+            <button class="dark-mode-toggle" id="darkModeToggle">🌙</button>
+        </div>
+        <div class="subtitle">
+            <span id="subtitle-text">🇲🇿 Calculadora Oficial para Ensino Geral</span>
+            <div class="badge" id="badge-text">NOTAS 0-20 | APROVAÇÃO ≥10</div>
+        </div>
+
+        <!-- Seletor de Idiomas -->
+        <div class="lang-selector">
+            <button class="lang-btn active" data-lang="pt">🇵🇹 Português</button>
+            <button class="lang-btn" data-lang="en">🇬🇧 English</button>
+            <button class="lang-btn" data-lang="fr">🇫🇷 Français</button>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="periodo" id="tab-periodo">📖 Média do Período</button>
+            <button class="tab-btn" data-tab="anual" id="tab-anual">📈 Média Anual</button>
+        </div>
+
+        <!-- ABA: Média do Período -->
+        <div id="periodo" class="tab-content active">
+            <div class="input-group">
+                <label id="label-acs1">📚 1ª ACS (Actividades Complementares)</label>
+                <input type="number" id="nota1" placeholder="Nota de 0 a 20" min="0" max="20" step="0.1">
+            </div>
+            <div class="input-group">
+                <label id="label-acs2">📚 2ª ACS (Actividades Complementares)</label>
+                <input type="number" id="nota2" placeholder="Nota de 0 a 20" min="0" max="20" step="0.1">
+            </div>
+            <div class="input-group">
+                <label id="label-acp">⚙️ ACP (Competências Práticas)</label>
+                <input type="number" id="nota3" placeholder="Nota de 0 a 20" min="0" max="20" step="0.1">
+            </div>
+            <button id="btn-calcular-periodo">🔢 CALCULAR MÉDIA</button>
+        </div>
+
+        <!-- ABA: Média Anual -->
+        <div id="anual" class="tab-content">
+            <div class="input-group">
+                <label id="label-periodo1">📅 1º Período</label>
+                <input type="number" id="periodo1" placeholder="Média do 1º Período" min="0" max="20" step="0.1">
+            </div>
+            <div class="input-group">
+                <label id="label-periodo2">📅 2º Período</label>
+                <input type="number" id="periodo2" placeholder="Média do 2º Período" min="0" max="20" step="0.1">
+            </div>
+            <div class="input-group">
+                <label id="label-periodo3">📅 3º Período</label>
+                <input type="number" id="periodo3" placeholder="Média do 3º Período" min="0" max="20" step="0.1">
+            </div>
+            <button id="btn-calcular-anual">📊 CALCULAR MÉDIA ANUAL</button>
+        </div>
+
+        <!-- SECÇÃO DE DOAÇÃO -->
+        <div class="donation-section">
+            <button class="donation-btn" id="donation-btn">❤️ APOIAR O DESENVOLVIMENTO - DOAR</button>
+            <div class="donation-buttons">
+                <button class="ussd-btn" id="ussd-btn">📱 PAGAR VIA USSD *898#</button>
+                <button class="emola-btn" id="emola-btn">💚 PAGAR VIA e-MOLA</button>
+            </div>
+        </div>
+
+        <!-- PAYWALL -->
+        <div id="paywall" class="paywall">
+            <div style="font-size: 40px;">🔒</div>
+            <h3 id="paywall-title">Resultado Bloqueado</h3>
+            <p id="paywall-text">Pague <b>10 MT</b> para desbloquear sua média</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin: 10px 0;">
+                <div style="text-align: center;">
+                    <div class="ussd-code">*898#</div>
+                    <small>Código USSD</small>
+                </div>
+                <div style="text-align: center;">
+                    <div class="numero-emola">87 699 0562</div>
+                    <small>e-Mola / M-PESA</small>
+                </div>
+            </div>
+            <a class="whatsapp-button" id="whatsapp-link" href="#" target="_blank" style="display: inline-block; width: 100%; padding: 12px; background: #25d366; color: white; border-radius: 14px; text-decoration: none; font-weight: bold; margin: 10px 0; text-align: center;">
+                📱 Receber código via WhatsApp
+            </a>
+            <p style="margin-top: 15px;" id="codigo-label">Cole o código recebido:</p>
+            <input type="text" id="codigoTransacao" placeholder="Ex: MZ-2512-84732" style="background: white;">
+            <button id="btn-liberar" style="background: #28a745;">✅ JÁ PAGUEI - LIBERAR</button>
+        </div>
+
+        <!-- RESULTADO -->
+        <div id="resultado" class="resultado">
+            <div style="font-size: 40px;">🎓</div>
+            <h3 id="result-title">Sua Média Final é:</h3>
+            <div class="media-grande" id="valorMedia">0.0</div>
+            <div id="situacao"></div>
+        </div>
+
+        <div class="info" id="info-text">
+            ⚡ Sistema seguro | Códigos válidos por única vez | Suporte via WhatsApp 24h
+        </div>
+    </div>
+</div>
+
+<!-- OVERLAY E PAINEL ADMIN (OCULTO) -->
+<div id="adminOverlay" class="admin-overlay"></div>
+<div id="adminPanel" class="admin-panel">
+    <h3 style="text-align: center;">🔒 Painel Administrativo</h3>
+    <div id="adminLogin">
+        <input type="password" id="adminSenha" placeholder="Digite a senha" style="margin-bottom: 10px;">
+        <button id="btnAdminLogin">🔑 Acessar</button>
+    </div>
+    <div id="adminContent" style="display: none;">
+        <p style="color: #28a745; text-align: center;">✅ Modo Administrador Ativo</p>
+        <button id="btnGerarCodigo">🎫 GERAR CÓDIGO DE PAGAMENTO</button>
+        <div class="codigo-gerado" id="codigoGerado"></div>
+        <small style="display: block; text-align: center; margin-top: 10px;">Código único e válido para uma ativação.</small>
+        <button id="btnFecharAdmin" style="background: #dc3545; margin-top: 15px;">Fechar</button>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div id="customModal" class="modal" onclick="fecharModalClick(event)">
+    <div class="modal-content">
+        <div class="modal-icon" id="modalIcon">✅</div>
+        <h3 id="modalTitle">Sucesso!</h3>
+        <p id="modalMessage">Operação realizada com sucesso.</p>
+        <button onclick="fecharModal()">OK</button>
+    </div>
+</div>
+
+<script>
+    // ======================== SISTEMA DE PAGAMENTO ========================
+    let mediaCalculada = 0;
+    let codigosValidos = JSON.parse(localStorage.getItem('codigosValidos') || '[]');
+    let codigosUsados = JSON.parse(localStorage.getItem('codigosUsados') || '[]');
+    let clickCount = 0;
+    let clickTimer = null;
+
+    // ======================== DARK MODE ========================
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+    
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        body.classList.add('dark');
+        body.classList.remove('light');
+        darkModeToggle.innerHTML = '☀️';
+    }
+    
+    darkModeToggle.addEventListener('click', () => {
+        if (body.classList.contains('light')) {
+            body.classList.remove('light');
+            body.classList.add('dark');
+            localStorage.setItem('darkMode', 'enabled');
+            darkModeToggle.innerHTML = '☀️';
+        } else {
+            body.classList.remove('dark');
+            body.classList.add('light');
+            localStorage.setItem('darkMode', 'disabled');
+            darkModeToggle.innerHTML = '🌙';
+        }
+    });
+
+    // ======================== IDIOMAS ========================
+    const idiomas = {
+        pt: {
+            titulo: "📊 SmartMédia MZ", subtitulo: "🇲🇿 Calculadora Oficial para Ensino Geral",
+            badge: "NOTAS 0-20 | APROVAÇÃO ≥10", tabPeriodo: "📖 Média do Período",
+            tabAnual: "📈 Média Anual", acs1: "📚 1ª ACS (Actividades Complementares)",
+            acs2: "📚 2ª ACS (Actividades Complementares)", acp: "⚙️ ACP (Competências Práticas)",
+            periodo1: "📅 1º Período", periodo2: "📅 2º Período", periodo3: "📅 3º Período",
+            btnCalcular: "🔢 CALCULAR MÉDIA", btnCalcularAnual: "📊 CALCULAR MÉDIA ANUAL",
+            doacao: "❤️ APOIAR O DESENVOLVIMENTO - DOAR", doacaoInfo: "❤️ Apoiar Desenvolvimento",
+            doacaoMsg: "💰 CHAVE M-PESA/e-MOLA: 87 699 0562\nNome: Cleiton Raimundo\n\nValor sugerido: 20 - 50 MT\n\nSua doação mantém o sistema funcionando! Obrigado! ❤️",
+            paywallTitle: "Resultado Bloqueado", paywallText: "Pague <b>10 MT</b> para desbloquear sua média",
+            codigoLabel: "Cole o código recebido:", btnLiberar: "✅ JÁ PAGUEI - LIBERAR",
+            resultTitle: "Sua Média Final é:", info: "⚡ Sistema seguro | Códigos válidos por única vez | Suporte via WhatsApp 24h",
+            aprovado: "✅ APROVADO! Parabéns! 🎉", reprovado: "❌ REPROVADO. Continue estudando! 💪",
+            whatsappMsg: "Olá, realizei o pagamento de 10 MT e preciso do código para liberar minha média",
+            ussdMsg: "Código USSD copiado! *898#\n\n1. Abra o discador do seu telefone\n2. Digite *898# e pressione ligar\n3. Siga as instruções para pagar 10 MT\n4. Após pagamento, solicite o código no WhatsApp"
+        },
+        en: {
+            titulo: "📊 SmartMédia MZ", subtitulo: "🇲🇿 Official Calculator for General Education",
+            badge: "GRADES 0-20 | PASSING ≥10", tabPeriodo: "📖 Period Average",
+            tabAnual: "📈 Annual Average", acs1: "📚 1st ACS (Complementary Activities)",
+            acs2: "📚 2nd ACS (Complementary Activities)", acp: "⚙️ ACP (Practical Skills)",
+            periodo1: "📅 1st Period", periodo2: "📅 2nd Period", periodo3: "📅 3rd Period",
+            btnCalcular: "🔢 CALCULATE AVERAGE", btnCalcularAnual: "📊 CALCULATE ANNUAL AVERAGE",
+            doacao: "❤️ SUPPORT DEVELOPMENT - DONATE", doacaoInfo: "❤️ Support Development",
+            doacaoMsg: "💰 M-PESA/e-MOLA KEY: 87 699 0562\nName: Cleiton Raimundo\n\nSuggested amount: 20 - 50 MT\n\nYour donation keeps the system running! Thank you! ❤️",
+            paywallTitle: "Result Blocked", paywallText: "Pay <b>10 MT</b> to unlock your grade",
+            codigoLabel: "Enter the code received:", btnLiberar: "✅ I PAID - UNLOCK",
+            resultTitle: "Your Final Grade is:", info: "⚡ Secure system | One-time codes | 24h WhatsApp support",
+            aprovado: "✅ PASSED! Congratulations! 🎉", reprovado: "❌ FAILED. Keep studying! 💪",
+            whatsappMsg: "Hello, I made the payment of 10 MT and need the code to unlock my grade",
+            ussdMsg: "USSD Code copied! *898#\n\n1. Open your phone dialer\n2. Dial *898# and press call\n3. Follow instructions to pay 10 MT\n4. After payment, request the code on WhatsApp"
+        },
+        fr: {
+            titulo: "📊 SmartMédia MZ", subtitulo: "🇲🇿 Calculateur Officiel pour l'Enseignement Général",
+            badge: "NOTES 0-20 | RÉUSSITE ≥10", tabPeriodo: "📖 Moyenne Période",
+            tabAnual: "📈 Moyenne Annuelle", acs1: "📚 1ère ACS (Activités Complémentaires)",
+            acs2: "📚 2ème ACS (Activités Complémentaires)", acp: "⚙️ ACP (Compétences Pratiques)",
+            periodo1: "📅 1ère Période", periodo2: "📅 2ème Période", periodo3: "📅 3ème Période",
+            btnCalcular: "🔢 CALCULER LA MOYENNE", btnCalcularAnual: "📊 CALCULER LA MOYENNE ANNUELLE",
+            doacao: "❤️ SOUTENIR LE DÉVELOPPEMENT - DONNER", doacaoInfo: "❤️ Soutenir le Développement",
+            doacaoMsg: "💰 CLÉ M-PESA/e-MOLA: 87 699 0562\nNom: Cleiton Raimundo\n\nMontant suggéré: 20 - 50 MT\n\nVotre don maintient le système! Merci! ❤️",
+            paywallTitle: "Résultat Bloqué", paywallText: "Payez <b>10 MT</b> pour débloquer votre note",
+            codigoLabel: "Entrez le code reçu:", btnLiberar: "✅ J'AI PAYÉ - DÉBLOQUER",
+            resultTitle: "Votre Note Finale est:", info: "⚡ Système sécurisé | Codes à usage unique | Support WhatsApp 24h",
+            aprovado: "✅ RÉUSSI! Félicitations! 🎉", reprovado: "❌ ÉCHOUÉ. Continuez à étudier! 💪",
+            whatsappMsg: "Bonjour, j'ai effectué le paiement de 10 MT et j'ai besoin du code pour débloquer ma note",
+            ussdMsg: "Code USSD copié! *898#\n\n1. Ouvrez le composeur de votre téléphone\n2. Composez *898# et appuyez sur appeler\n3. Suivez les instructions pour payer 10 MT\n4. Après le paiement, demandez le code sur WhatsApp"
+        }
+    };
+
+    let currentLang = 'pt';
+
+    function aplicarIdioma() {
+        const lang = idiomas[currentLang];
+        document.getElementById('titulo-principal').innerHTML = lang.titulo;
+        document.getElementById('subtitle-text').innerText = lang.subtitulo;
+        document.getElementById('badge-text').innerText = lang.badge;
+        document.getElementById('tab-periodo').innerHTML = lang.tabPeriodo;
+        document.getElementById('tab-anual').innerHTML = lang.tabAnual;
+        document.getElementById('label-acs1').innerHTML = lang.acs1;
+        document.getElementById('label-acs2').innerHTML = lang.acs2;
+        document.getElementById('label-acp').innerHTML = lang.acp;
+        document.getElementById('label-periodo1').innerHTML = lang.periodo1;
+        document.getElementById('label-periodo2').innerHTML = lang.periodo2;
+        document.getElementById('label-periodo3').innerHTML = lang.periodo3;
+        document.getElementById('btn-calcular-periodo').innerHTML = lang.btnCalcular;
+        document.getElementById('btn-calcular-anual').innerHTML = lang.btnCalcularAnual;
+        document.getElementById('donation-btn').innerHTML = lang.doacao;
+        document.getElementById('paywall-title').innerHTML = lang.paywallTitle;
+        document.getElementById('paywall-text').innerHTML = lang.paywallText;
+        document.getElementById('codigo-label').innerHTML = lang.codigoLabel;
+        document.getElementById('btn-liberar').innerHTML = lang.btnLiberar;
+        document.getElementById('result-title').innerHTML = lang.resultTitle;
+        document.getElementById('info-text').innerHTML = lang.info;
+        
+        const whatsappLink = document.getElementById('whatsapp-link');
+        whatsappLink.href = `https://wa.me/+258876990562?text=${encodeURIComponent(lang.whatsappMsg)}`;
+    }
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentLang = btn.getAttribute('data-lang');
+            aplicarIdioma();
+        });
+    });
+
+    // Modal
+    function mostrarModal(icone, titulo, mensagem) {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalIcon').innerHTML = icone;
+        document.getElementById('modalTitle').innerText = titulo;
+        document.getElementById('modalMessage').innerText = mensagem;
+        modal.style.display = 'flex';
+    }
+
+    function fecharModal() {
+        document.getElementById('customModal').style.display = 'none';
+    }
+
+    function fecharModalClick(event) {
+        if (event.target === document.getElementById('customModal')) {
+            fecharModal();
+        }
+    }
+
+    // Abas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('paywall').style.display = 'none';
+            document.getElementById('resultado').style.display = 'none';
+        });
+    });
+
+    // Cálculos
+    function calcularMediaPeriodo() {
+        let n1 = parseFloat(document.getElementById('nota1').value) || 0;
+        let n2 = parseFloat(document.getElementById('nota2').value) || 0;
+        let n3 = parseFloat(document.getElementById('nota3').value) || 0;
+
+        if (n1 === 0 && n2 === 0 && n3 === 0) {
+            mostrarModal('⚠️', 'Atenção!', 'Por favor, insira pelo menos uma nota.');
+            return;
+        }
+        if (n1 > 20 || n2 > 20 || n3 > 20) {
+            mostrarModal('⚠️', 'Nota Inválida!', 'As notas não podem ser superiores a 20.');
+            return;
+        }
+
+        mediaCalculada = (n1 + n2 + n3) / 3;
+        mediaCalculada = parseFloat(mediaCalculada.toFixed(1));
+        mostrarPaywall();
+    }
+
+    function calcularMediaAnual() {
+        let p1 = parseFloat(document.getElementById('periodo1').value) || 0;
+        let p2 = parseFloat(document.getElementById('periodo2').value) || 0;
+        let p3 = parseFloat(document.getElementById('periodo3').value) || 0;
+
+        if (p1 === 0 && p2 === 0 && p3 === 0) {
+            mostrarModal('⚠️', 'Atenção!', 'Insira pelo menos uma média de período.');
+            return;
+        }
+        if (p1 > 20 || p2 > 20 || p3 > 20) {
+            mostrarModal('⚠️', 'Média Inválida!', 'As médias não podem ser superiores a 20.');
+            return;
+        }
+
+        mediaCalculada = (p1 + p2 + p3) / 3;
+        mediaCalculada = parseFloat(mediaCalculada.toFixed(1));
+        mostrarPaywall();
+    }
+
+    function mostrarPaywall() {
+        document.getElementById('paywall').style.display = 'block';
+        document.getElementById('resultado').style.display = 'none';
+        document.getElementById('codigoTransacao').value = '';
+        document.getElementById('paywall').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function verificarPagamento() {
+        let codigo = document.getElementById('codigoTransacao').value.trim().toUpperCase();
+        
+        if (codigo === '') {
+            mostrarModal('🔒', 'Código Necessário', 'Insira o código recebido pelo WhatsApp.');
+            return;
+        }
+        if (!codigosValidos.includes(codigo)) {
+            mostrarModal('❌', 'Código Inválido!', 'Código não reconhecido. Entre em contato pelo WhatsApp.');
+            return;
+        }
+        if (codigosUsados.includes(codigo)) {
+            mostrarModal('⚠️', 'Código já usado', 'Este código já foi utilizado.');
+            return;
+        }
+        
+        codigosUsados.push(codigo);
+        localStorage.setItem('codigosUsados', JSON.stringify(codigosUsados));
+        
+        document.getElementById('paywall').style.display = 'none';
+        document.getElementById('valorMedia').innerHTML = mediaCalculada + ' valores';
+        
+        const lang = idiomas[currentLang];
+        let situacao = mediaCalculada >= 10 ? lang.aprovado : lang.reprovado;
+        let cor = mediaCalculada >= 10 ? 'aprovado' : 'reprovado';
+        document.getElementById('situacao').innerHTML = `<span class="${cor}">${situacao}</span>`;
+        document.getElementById('resultado').style.display = 'block';
+        
+        mostrarModal('✅', 'Pagamento Confirmado!', 'Sua média foi liberada com sucesso.');
+        document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ======================== DOAÇÃO E PAGAMENTO ========================
+    document.getElementById('donation-btn').addEventListener('click', () => {
+        const lang = idiomas[currentLang];
+        mostrarModal('❤️', lang.doacaoInfo, lang.doacaoMsg);
+    });
+
+    // Pagamento via USSD *898#
+    document.getElementById('ussd-btn').addEventListener('click', () => {
+        const lang = idiomas[currentLang];
+        navigator.clipboard.writeText('*898#').then(() => {
+            mostrarModal('📱', 'Código USSD', lang.ussdMsg);
+        }).catch(() => {
+            mostrarModal('📱', 'Código USSD', '*898#\n\nDigite este código no discador do seu telefone para pagar 10 MT');
+        });
+    });
+
+    // Pagamento via e-Mola - mostra número
+    document.getElementById('emola-btn').addEventListener('click', () => {
+        navigator.clipboard.writeText('876990562').then(() => {
+            mostrarModal('💚', 'e-Mola', 'Número 87 699 0562 copiado!\n\n📌 Faça o pagamento de 10 MT\n📌 Após pagar, solicite o código no WhatsApp');
+        }).catch(() => {
+            mostrarModal('💚', 'Pagamento e-Mola', 'Envie 10 MT para:\n📞 87 699 0562\nNome: Cleiton Raimundo');
+        });
+    });
+
+    // ======================== PAINEL ADMIN SECRETO ========================
+    document.getElementById('titulo-principal').addEventListener('click', () => {
+        clickCount++;
+        if (clickTimer) clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
+        if (clickCount === 5) {
+            clickCount = 0;
+            document.getElementById('adminOverlay').classList.add('show');
+            document.getElementById('adminPanel').classList.add('show');
+        }
+    });
+
+    document.getElementById('btnAdminLogin').addEventListener('click', () => {
+        const senha = document.getElementById('adminSenha').value;
+        if (senha === 'CleitonAdmin2025') {
+            document.getElementById('adminLogin').style.display = 'none';
+            document.getElementById('adminContent').style.display = 'block';
+            mostrarModal('🔓', 'Acesso Concedido', 'Bem-vindo ao painel administrativo.');
+        } else {
+            mostrarModal('🔒', 'Acesso Negado', 'Senha incorreta.');
+        }
+    });
+
+    document.getElementById('btnGerarCodigo').addEventListener('click', () => {
+        const agora = new Date();
+        const ano = agora.getFullYear().toString().slice(-2);
+        const mes = (agora.getMonth() + 1).toString().padStart(2, '0');
+        const dia = agora.getDate().toString().padStart(2, '0');
+        const hora = agora.getHours().toString().padStart(2, '0');
+        const aleatorio = Math.floor(1000 + Math.random() * 9000);
+        const codigo = `MZ-${ano}${mes}${dia}${hora}-${aleatorio}`;
+        
+        document.getElementById('codigoGerado').innerHTML = codigo;
+        
+        if (!codigosValidos.includes(codigo)) {
+            codigosValidos.push(codigo);
+            localStorage.setItem('codigosValidos', JSON.stringify(codigosValidos));
+        }
+        
+        mostrarModal('🎫', 'Código Gerado!', `Código: ${codigo}\n\nEnvie ao cliente após confirmação de pagamento.`);
+        if (navigator.clipboard) navigator.clipboard.writeText(codigo);
+    });
+
+    document.getElementById('btnFecharAdmin').addEventListener('click', () => {
+        document.getElementById('adminOverlay').classList.remove('show');
+        document.getElementById('adminPanel').classList.remove('show');
+        document.getElementById('adminLogin').style.display = 'block';
+        document.getElementById('adminContent').style.display = 'none';
+        document.getElementById('adminSenha').value = '';
+    });
+
+    document.getElementById('adminOverlay').addEventListener('click', () => {
+        document.getElementById('adminOverlay').classList.remove('show');
+        document.getElementById('adminPanel').classList.remove('show');
+    });
+
+    // Eventos principais
+    document.getElementById('btn-calcular-periodo').addEventListener('click', calcularMediaPeriodo);
+    document.getElementById('btn-calcular-anual').addEventListener('click', calcularMediaAnual);
+    document.getElementById('btn-liberar').addEventListener('click', verificarPagamento);
+
+    window.fecharModal = fecharModal;
+    window.fecharModalClick = fecharModalClick;
+    aplicarIdioma();
+</script>
+</body>
+</html>
